@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class shortenUrlResponseDTO {
+public class shortenUrlResponseDto {
     private String shortCode;
 }
