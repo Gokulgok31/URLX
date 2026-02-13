@@ -4,17 +4,20 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "url")
+@Getter
+@Setter
 public class Url {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    @Column
+    private Long id;
+
+    @Column(nullable = false, length = 2048)
     private String longUrl;
-    @Column(unique = true)
+
+    @Column(nullable = false, unique = true, length = 10)
     private String shortCode;
 }
+
