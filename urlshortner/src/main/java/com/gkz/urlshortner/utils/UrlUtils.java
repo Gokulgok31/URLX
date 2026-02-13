@@ -8,8 +8,18 @@ import java.net.URI;
 public class UrlUtils {
 
     public boolean isUrlValid(String url) {
-        try{
-            URI.create(url).toURL();
+
+        if(url == null || url.isBlank()) {
+            return false;
+        }
+        try {
+            URI uri = new URI(url);
+            String scheme = uri.getScheme();
+            if(scheme == null ||
+                    (!scheme.equalsIgnoreCase("http") &&
+                            !scheme.equalsIgnoreCase("https"))){
+                return false;
+            }
             return true;
         } catch (Exception e) {
             return false;
