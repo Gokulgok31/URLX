@@ -5,6 +5,7 @@ import com.gkz.urlshortner.dto.ShortenUrlRequestDto;
 import com.gkz.urlshortner.dto.ShortenUrlResponseDto;
 import com.gkz.urlshortner.entity.Url;
 import com.gkz.urlshortner.exception.InvalidUrlException;
+import com.gkz.urlshortner.exception.LinkExpiredException;
 import com.gkz.urlshortner.exception.UrlNotFoundException;
 import com.gkz.urlshortner.repository.UrlRepository;
 import com.gkz.urlshortner.utils.UrlUtils;
@@ -16,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,9 +40,12 @@ public class UrlService {
 
         String shortCode = generateUniqueShortCode();
 
+        LocalDateTime currentTime = LocalDateTime.now();
         Url urlEntity = new Url();
         urlEntity.setLongUrl(longUrl);
         urlEntity.setShortCode(shortCode);
+        urlEntity.setCreatedAt(currentTime);
+        urlEntity.setExpiryAt(currentTime.plusMinutes(2));
 
         urlRepository.save(urlEntity);
 
@@ -53,17 +59,20 @@ public class UrlService {
         String shortCode;
         do {
             shortCode = RandomStringUtils.randomAlphanumeric(8);
-        } while (urlRepository.existsByShortCode(shortCode)); // NOTE: Capital S
+        } while (urlRepository.existsByShortCode(shortCode));
         return shortCode;
     }
 
     public URI getRedirectionUri(String shortCode) {
-        String urlToBeParsed = urlRepository.findByShortCode(shortCode)
-                .map(Url::getLongUrl)
+
+        Url url = urlRepository.findByShortCode(shortCode)
                 .orElseThrow(() ->
                         new UrlNotFoundException("Short code not found: " + shortCode));
-        return URI.create(urlToBeParsed);
 
+        if (LocalDateTime.now().isAfter(url.getExpiryAt())) {
+            throw new LinkExpiredException("Link expired at: " + url.getExpiryAt());
+        }
+
+        return URI.create(url.getLongUrl());
     }
-
 }

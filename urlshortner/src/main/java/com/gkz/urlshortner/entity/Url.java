@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "url")
 @Getter
@@ -19,5 +21,11 @@ public class Url {
 
     @Column(nullable = false, unique = true, length = 10)
     private String shortCode;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime expiryAt;
 }
 

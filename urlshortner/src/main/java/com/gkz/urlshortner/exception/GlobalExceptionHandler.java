@@ -56,4 +56,18 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
+
+    @ExceptionHandler(LinkExpiredException.class)
+    public ResponseEntity<ErrorResponseDto> handleLinkExpired(LinkExpiredException ex) {
+
+        log.error("Link got expired: {}", ex.getMessage());
+
+        ErrorResponseDto error = ErrorResponseDto.builder()
+                .status(HttpStatus.GONE.value())
+                .message(ex.getMessage())
+                .timeStamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.GONE).body(error);
+    }
 }
